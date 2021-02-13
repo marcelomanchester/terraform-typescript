@@ -1,32 +1,21 @@
 import { Construct } from 'constructs';
-import { App, TerraformOutput, TerraformStack } from 'cdktf';
-import { AwsProvider, Instance } from './.gen/providers/aws';
+import { App, TerraformStack } from 'cdktf';
+import { VpcStack } from './resources/vpc/vpc';
 
 class MyStack extends TerraformStack {
   constructor(scope: Construct, name: string) {
     super(scope, name);
 
-    new AwsProvider(this, 'aws', {
-      region: 'us-west-1'
-    });
+    this.createVpc(scope);
+  }
 
-    const instance = new Instance(this, 'main', {
-      ami: 'ami-01456a894f71116f2',
-      instanceType: 't2.micro',
-      tags: {
-        Name: 'Typescript-terraform'
-      }
-    });
-
-    new TerraformOutput(this, 'public_ip', {
-      value: instance.publicIp
-    })
-
+  createVpc(app: Construct) {
+    new VpcStack(app, 'typescript')
   }
 }
 
 const app = new App();
-new MyStack(app, 'terraform-typescript');
+new MyStack(app, 'main');
 
 // This command will generate a json wich can be used by terraform
 app.synth();
